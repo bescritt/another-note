@@ -1,0 +1,9 @@
+# Another Note dependency manifest
+#
+# `classify`, `estimate`, `selfcheck`, and `update` run on the Python
+# standard library alone. Only the `report` command needs `cryptography`
+# (for the RSA-OAEP-256 + AES-CBC-256 submission envelope).
+#
+# The floor below is the first release that exposes the OAEP-SHA256
+# primitives this tool relies on.
+cryptography>=41.0.0

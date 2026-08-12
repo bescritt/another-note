@@ -1,0 +1,26 @@
+# Byte-compiled / optimized / cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.cover
+.coverage
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Distribution / packaging
+*.egg-info/
+build/
+dist/
+
+# Local config + runtime state (do NOT commit; may hold a local install id)
+.another_note_state
+.env
+*.local
+
+# Editor / OS noise
+.idea/
+.vscode/
+.DS_Store

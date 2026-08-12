@@ -1,0 +1,11 @@
+# Treat the bloom-filter datasets as binary: never diff or rewrite line endings.
+*.dat                        binary
+
+# Pin text files to LF so CI behaves identically on Windows.
+*.py                         text eol=lf
+*.md                         text eol=lf
+*.txt                        text eol=lf
+*.yml                        text eol=lf
+
+# Preserve the executable bit on the CLI entrypoint.
+another_note.py             -text

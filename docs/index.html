@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Another Note — offline Shinigami Eyes label filters, on the command line</title>
+<meta name="description" content="A single-file, cross-platform CLI that reimplements the Shinigami Eyes social-profile label filters using the shipped bloom-filter data. Offline classify. Privacy-preserving.">
+<style>
+  :root{
+    --bg:#0b0e14; --bg2:#11151f; --panel:#151b27; --panel2:#1b2433;
+    --ink:#e6edf3; --muted:#9aa7b8; --line:#263041;
+    --friendly:#3fb950; --averse:#f85149; --accent:#7c9cff; --accent2:#c084fc;
+    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
+    --sans:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:
+      radial-gradient(1200px 600px at 80% -10%,rgba(124,156,255,.12),transparent 60%),
+      radial-gradient(900px 500px at 0% 10%,rgba(192,132,252,.10),transparent 55%),
+      var(--bg);
+    color:var(--ink);font:16px/1.6 var(--sans);-webkit-font-smoothing:antialiased}
+  a{color:var(--accent);text-decoration:none}
+  a:hover{text-decoration:underline}
+  .wrap{max-width:980px;margin:0 auto;padding:0 22px}
+  header.nav{position:sticky;top:0;z-index:10;backdrop-filter:blur(10px);
+    background:rgba(11,14,20,.72);border-bottom:1px solid var(--line)}
+  header.nav .wrap{display:flex;align-items:center;gap:18px;height:58px}
+  .brand{font:600 17px/1 var(--mono);letter-spacing:.5px;color:var(--ink)}
+  .brand b{color:var(--accent2)}
+  nav.links{margin-left:auto;display:flex;gap:18px;font:14px var(--sans)}
+  nav.links a{color:var(--muted)}
+  nav.links a:hover{color:var(--ink);text-decoration:none}
+
+  .hero{padding:74px 0 54px;text-align:center}
+  pre.ascii{font:13px/1.15 var(--mono);color:var(--accent2);
+    text-shadow:0 0 14px rgba(192,132,252,.35);margin:0 auto 26px;display:inline-block;
+    text-align:left;white-space:pre;overflow-x:auto}
+  h1{font-size:clamp(30px,5vw,46px);line-height:1.1;margin:0 0 14px;letter-spacing:-.5px}
+  h1 .grad{background:linear-gradient(90deg,var(--accent),var(--accent2));
+    -webkit-background-clip:text;background-clip:text;color:transparent}
+  .lead{color:var(--muted);font-size:18px;max-width:680px;margin:0 auto 26px}
+  .cta{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+  .btn{display:inline-flex;align-items:center;gap:8px;padding:11px 18px;border-radius:10px;
+    font:600 15px var(--sans);border:1px solid var(--line);background:var(--panel);
+    color:var(--ink);transition:.15s}
+  .btn:hover{transform:translateY(-1px);border-color:var(--accent);text-decoration:none}
+  .btn.primary{background:linear-gradient(90deg,var(--accent),var(--accent2));
+    color:#0b0e14;border:none}
+  .badges{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:22px}
+  .badge{font:12px var(--mono);color:var(--muted);border:1px solid var(--line);
+    padding:5px 10px;border-radius:999px;background:var(--bg2)}
+
+  section{padding:46px 0;border-top:1px solid var(--line)}
+  h2{font-size:26px;margin:0 0 8px;letter-spacing:-.3px}
+  .sec-sub{color:var(--muted);margin:0 0 26px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px}
+  .card{background:linear-gradient(180deg,var(--panel),var(--bg2));border:1px solid var(--line);
+    border-radius:14px;padding:20px;transition:.15s}
+  .card:hover{border-color:var(--accent);transform:translateY(-2px)}
+  .card h3{margin:0 0 8px;font-size:17px;display:flex;align-items:center;gap:9px}
+  .card p{margin:0;color:var(--muted);font-size:14.5px}
+  .dot{width:9px;height:9px;border-radius:50%;flex:none}
+  .dot.f{background:var(--friendly);box-shadow:0 0 10px var(--friendly)}
+  .dot.a{background:var(--averse);box-shadow:0 0 10px var(--averse)}
+  .dot.x{background:var(--accent)}
+
+  .term{background:#07090f;border:1px solid var(--line);border-radius:12px;
+    padding:18px 20px;font:13.5px/1.65 var(--mono);color:#cdd6e0;overflow-x:auto}
+  .term .c{color:var(--muted)} .term .p{color:var(--friendly)}
+  .term .q{color:var(--accent)} .term .r{color:var(--averse)}
+  .term .o{color:var(--muted)}
+
+  table{width:100%;border-collapse:collapse;font-size:14.5px;margin-top:6px}
+  th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line)}
+  th{color:var(--muted);font-weight:600}
+  td code{font:13px var(--mono);color:var(--accent2)}
+
+  .lic{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .lic .card h3{color:var(--ink)}
+  .lic .card span{color:var(--accent);font:13px var(--mono)}
+
+  .note{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--accent);
+    border-radius:8px;padding:14px 16px;color:var(--muted);font-size:14.5px}
+  .note b{color:var(--ink)}
+
+  footer{padding:40px 0 60px;color:var(--muted);font-size:14px;text-align:center}
+  footer a{color:var(--accent)}
+  .pill{display:inline-block;font:12px var(--mono);color:var(--muted);
+    border:1px solid var(--line);padding:2px 8px;border-radius:6px;margin:0 4px}
+  @media(max-width:620px){.lic{grid-template-columns:1fr}nav.links{display:none}}
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="wrap">
+    <div class="brand">ANOTHER<b>·</b>NOTE</div>
+    <nav class="links">
+      <a href="#what">What it does</a>
+      <a href="#start">Quick start</a>
+      <a href="#safety">Safety model</a>
+      <a href="#license">License</a>
+      <a href="https://github.com/bescritt/another-note">GitHub</a>
+    </nav>
+  </div>
+</header>
+
+<div class="hero">
+  <div class="wrap">
+<pre class="ascii">   .-"      "-.
+  /            \
+ |              |
+ |,  .-.  .-.  ,|
+ | )(_o/  \o_)( |
+ |/     /\     \|
+ (_     ^^     _)
+  \__|IIIIII|__/
+   | \IIIIII/ |
+   \          /
+    `--------`
+</pre>
+    <h1>Another <span class="grad">Note</span></h1>
+    <p class="lead">A single-file, cross-platform command-line tool that reimplements the
+      Shinigami&nbsp;Eyes social-profile label filters — reading the shipped
+      bloom-filter data to tell you whether a profile identifier carries a
+      <b style="color:var(--friendly)">trans-friendly</b> or
+      <b style="color:var(--averse)">anti-trans</b> signal, or
+      <b>neither</b>. Fully offline. Privacy-preserving by design.</p>
+    <div class="cta">
+      <a class="btn primary" href="#start">Get started →</a>
+      <a class="btn" href="https://github.com/bescritt/another-note">View on GitHub</a>
+    </div>
+    <div class="badges">
+      <span class="badge">Python 3.10+</span>
+      <span class="badge">Zero-config · no build</span>
+      <span class="badge">Offline classify</span>
+      <span class="badge">CI · 50 tests</span>
+      <span class="badge">MIT + CC-BY-NC-SA</span>
+    </div>
+  </div>
+</div>
+
+<section id="what">
+  <div class="wrap">
+    <h2>What it does</h2>
+    <p class="sec-sub">One script. Two privacy-preserving ideas carried over from the upstream project.</p>
+    <div class="grid">
+      <div class="card">
+        <h3><span class="dot f"></span>Classify offline</h3>
+        <p>Point it at a profile URL or handle and it answers from the bundled bloom filters —
+          no network, no account list, no enumeration.</p>
+      </div>
+      <div class="card">
+        <h3><span class="dot x"></span>Bloom filters</h3>
+        <p>The dataset is a fixed-size bit array plus k hash functions. Membership is testable;
+          the underlying account list is not recoverable.</p>
+      </div>
+      <div class="card">
+        <h3><span class="dot a"></span>Encrypted reporting</h3>
+        <p>Submitting labels uses RSA-OAEP-256 + AES-CBC-256 to the project's public key, so the
+          cloud provider cannot read what you send.</p>
+      </div>
+      <div class="card">
+        <h3><span class="dot x"></span>Human-in-the-loop</h3>
+        <p>Every report is confirmed one-by-one at an interactive prompt. No flag, pipe, or
+          environment variable can skip that step.</p>
+      </div>
+    </div>
+    <p class="note" style="margin-top:22px">
+      <b>“Neither” is not a verdict.</b> A <i>neither</i> result means the key is absent from the
+      shipped data — a coverage gap, never a statement about any person. A positive label reflects
+      a third-party crowd-sourced signal, not a verified fact.
+    </p>
+  </div>
+</section>
+
+<section id="start">
+  <div class="wrap">
+    <h2>Quick start</h2>
+    <p class="sec-sub">No install, no build step. Standard library plus <code>cryptography</code> (only for <code>report</code>).</p>
+    <div class="term">
+<span class="c"># clone</span>
+git clone https://github.com/bescritt/another-note
+cd another-note
+
+<span class="c"># classify from arguments, flags, or a STDIN pipe (offline)</span>
+python3 another_note.py classify facebook.com/example_page_one
+python3 another_note.py classify --url https://twitter.com/example_handle_one
+python3 another_note.py classify --twitter handle --facebook page
+cat list.txt | python3 another_note.py classify
+
+<span class="c"># coverage sanity signal</span>
+python3 another_note.py estimate
+
+<span class="c"># math self-check (synthetic, no real accounts)</span>
+<span class="p">python3 another_note.py selfcheck</span>
+
+<span class="c"># submit labels — interactive, per-item, no override</span>
+python3 another_note.py report "facebook.com/x:transgender_friendly" "facebook.com/y:transgender_averse"
+    </div>
+    <p class="sec-sub" style="margin-top:22px">Exit codes</p>
+    <table>
+      <tr><th>Code</th><th>Meaning</th></tr>
+      <tr><td><code>0</code></td><td>success</td></tr>
+      <tr><td><code>1</code></td><td>runtime / usage error, or <code>report</code> POST failed</td></tr>
+      <tr><td><code>2</code></td><td>an input became a non-keyable domain/URL (<code>--fail-on-unsupported</code>)</td></tr>
+      <tr><td><code>3</code></td><td>reporting aborted (no interactive confirmation available)</td></tr>
+    </table>
+  </div>
+</section>
+
+<section id="safety">
+  <div class="wrap">
+    <h2>Reporting — safety model</h2>
+    <p class="sec-sub">The <code>report</code> path posts only to the upstream endpoint using the upstream encryption scheme. The port authors run no server.</p>
+    <div class="term">
+<span class="c"># 1. each entry normalizes through the identifier sanitizer</span>
+<span class="c">#    non-keyable identifiers (e.g. bare instagram.com/&lt;handle&gt;) are refused</span>
+<span class="c"># 2. every remaining entry is confirmed individually at an interactive prompt</span>
+<span class="c">#    typing 'yes' — no flag, env var, or pipe skips this</span>
+<span class="c"># 3. when stdin is non-interactive, submission aborts rather than guessing</span>
+
+<span class="q">facebook.com/x • transgender_friendly — confirm? (yes/no)</span> <span class="o">yes</span>
+<span class="p">  → built hybrid envelope (RSA-OAEP-256 + AES-CBC-256) → POST</span>
+    </div>
+    <p class="note" style="margin-top:20px">
+      <b>Anyone who removes, bypasses, or automates that prompt operates outside this project's
+      safety model and the upstream intent.</b> The wire label tokens use the upstream server's
+      expected JSON keys (<code>t-friendly</code> / <code>transphobic</code>); they appear only at
+      the server boundary.
+    </p>
+  </div>
+</section>
+
+<section id="license">
+  <div class="wrap">
+    <h2>License</h2>
+    <p class="sec-sub">Two licenses, cleanly separated.</p>
+    <div class="lic">
+      <div class="card">
+        <h3>Upstream — MIT</h3>
+        <span>LICENSE-MIT</span>
+        <p>The algorithm and format knowledge reimplemented here — the FNV-1a hash contract, the
+          bloom-filter byte layout, the identifier normalization rules, and the submit-vote
+          encryption envelope — originate from Shinigami&nbsp;Eyes, which is MIT-licensed.
+          The verbatim MIT text is bundled and its copyright notice kept intact, as MIT requires.</p>
+      </div>
+      <div class="card">
+        <h3>This port — CC-BY-NC-SA 4.0</h3>
+        <span>LICENSE-CC</span>
+        <p>The new code, documentation, packaging, and legal text carry the Creative Commons
+          Attribution-NonCommercial-ShareAlike 4.0 International license. Share and adapt under the
+          same terms, with credit and no commercial use.</p>
+      </div>
+    </div>
+    <p class="note" style="margin-top:20px">
+      <b>Acknowledgements.</b> Another Note ports the Shinigami&nbsp;Eyes browser extension. We
+      thank the original authors and contributors for the design, the privacy-preserving
+      architecture, and the public dataset. Please support the original authors via their
+      repository: <a href="https://github.com/shinigami-eyes/shinigami-eyes">github.com/shinigami-eyes</a>.
+      No verified first-party donation URL was located at writing time.
+    </p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p>
+      <a href="https://github.com/bescritt/another-note">GitHub</a> ·
+      <a href="https://github.com/bescritt/another-note/blob/main/LEGAL.md">LEGAL.md</a> ·
+      <a href="https://github.com/bescritt/another-note/blob/main/CONTRIBUTING.md">Contributing</a>
+    </p>
+    <p style="margin-top:10px">
+      <span class="pill">MIT</span><span class="pill">CC-BY-NC-SA 4.0</span>
+      <span class="pill">Python 3.10–3.13</span>
+    </p>
+    <p style="margin-top:14px;opacity:.7">Another Note is an independent reimplementation. It is not affiliated with or endorsed by the Shinigami Eyes project.</p>
+  </div>
+</footer>
+
+</body>
+</html>
