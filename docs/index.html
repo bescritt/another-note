@@ -5,6 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Another Note — offline Shinigami Eyes label filters, on the command line</title>
 <meta name="description" content="A single-file, cross-platform CLI that reimplements the Shinigami Eyes social-profile label filters using the shipped bloom-filter data. Offline classify. Privacy-preserving.">
+<meta property="og:title" content="Another Note — offline Shinigami Eyes label filters">
+<meta property="og:description" content="A single-file, cross-platform CLI that reimplements the Shinigami Eyes social-profile label filters from the shipped bloom-filter data.">
+<meta property="og:image" content="https://bescritt.github.io/another-note/assets/hero.png">
+<meta property="og:type" content="website">
+<link rel="icon" href="assets/icon.png" type="image/png">
 <style>
   :root{
     --bg:#0b0e14; --bg2:#11151f; --panel:#151b27; --panel2:#1b2433;
@@ -33,6 +38,8 @@
   nav.links a:hover{color:var(--ink);text-decoration:none}
 
   .hero{padding:74px 0 54px;text-align:center}
+  .hero-art{width:min(760px,92%);height:auto;border-radius:16px;margin:0 auto 26px;
+    display:block;box-shadow:0 0 40px rgba(124,156,255,.18);border:1px solid var(--line)}
   pre.ascii{font:13px/1.15 var(--mono);color:var(--accent2);
     text-shadow:0 0 14px rgba(192,132,252,.35);margin:0 auto 26px;display:inline-block;
     text-align:left;white-space:pre;overflow-x:auto}
@@ -108,6 +115,7 @@
 
 <div class="hero">
   <div class="wrap">
+    <img class="hero-art" src="assets/hero.png" alt="Another Note — a watchful shinigami eye rendered in glowing lines, with teal and crimson signal accents" width="760">
 <pre class="ascii">   .-"      "-.
   /            \
  |              |

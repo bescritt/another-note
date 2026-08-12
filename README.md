@@ -9,7 +9,14 @@
    | \IIIIII/ |
    \          /
     `--------`
-      ANOTHER NOTE
+<p align="center">
+  <img src="assets/hero.png" alt="Another Note — a watchful shinigami eye rendered in glowing lines, with teal and crimson signal accents" width="720">
+</p>
+
+<p align="center">
+  <b>Another Note</b> — a self-contained, cross-platform CLI that reimplements the
+  Shinigami Eyes social-profile label filters from the shipped bloom-filter data.
+</p>
 
 # Another Note
 
